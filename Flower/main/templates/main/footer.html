@@ -1,0 +1,25 @@
+<footer class="footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-logo">
+        <a href="{% url 'main/index.html' %}">
+          <img src="{% static 'images/logo.png' %}" alt="Логотип сайта БУКЕТ18.РФ">
+        </a>
+      </div>
+      <div class="footer-contacts">
+        <p>Телефон: <a href="tel:89120203545">8 (912) 020-35-45</a></p>
+        <p>Email: <a href="mailto:info@buket18.rf">info@buket18.rf</a></p>
+        <p>Адрес: Ижевск, ул. Цветочная, д. 18</p>
+      </div>
+      <div class="footer-social">
+        <a href="https://vk.com" target="_blank">ВКонтакте</a>
+        <a href="https://ok.ru" target="_blank">Одноклассники</a>
+        <a href="https://facebook.com" target="_blank">Facebook</a>
+        <a href="https://twitter.com" target="_blank">Twitter</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; {{ current_year }} БУКЕТ18.РФ. Все права защищены.</p>
+    </div>
+  </div>
+</footer>
