@@ -5,5 +5,17 @@
 {% endblock %}
 
 {% block content %}
-        <h1>Здесь должны быть карточки товара, букеты</h1>
+        <h1>{{products}}</h1>
+{% for product in products %}
+    <div>
+        <h3>{{ product.name }}</h3>
+        <h3>{{ product.price }}</h3>
+        {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        {% else %}
+            <p>Изображение отсутствует</p>
+        {% endif %}
+    </div>
+{% endfor %}
+
 {% endblock %}
