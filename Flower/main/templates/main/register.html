@@ -1,0 +1,38 @@
+{% extends 'main/layoute.html' %}
+
+{% block title %}
+Регистрация - Магазин цветов
+{% endblock %}
+
+{% block content %}
+<div class="card mx-auto" style="max-width: 400px;">
+    <div class="card-header text-center bg-secondary text-white">
+        <h2>Регистрация</h2>
+    </div>
+    <div class="card-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_username" class="form-label">Имя пользователя</label>
+                <input type="text" name="username" id="id_username" class="form-control" placeholder="Введите имя пользователя" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_email" class="form-label">Электронная почта</label>
+                <input type="email" name="email" id="id_email" class="form-control" placeholder="Введите email" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_password" class="form-label">Пароль</label>
+                <input type="password" name="password" id="id_password" class="form-control" placeholder="Введите пароль" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_password_confirm" class="form-label">Подтвердите пароль</label>
+                <input type="password" name="password_confirm" id="id_password_confirm" class="form-control" placeholder="Подтвердите пароль" required>
+            </div>
+            <button type="submit" class="btn btn-secondary w-100 mt-3">Зарегистрироваться</button>
+        </form>
+    </div>
+    <div class="text-center mt-3">
+        <small>Уже есть аккаунт? <a href="{% url 'index' %}">Войти</a></small>
+    </div>
+</div>
+{% endblock %}

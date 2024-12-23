@@ -1,0 +1,42 @@
+{% extends 'main/layoute.html' %}
+
+{% block title %}
+    Список заказов
+{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <h2>Список заказов</h2>
+
+        {% if orders %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>№ Заказа</th>
+                        <th>Пользователь</th>
+                        <th>Продукты</th>
+                        <th>Статус</th>
+                        <th>Дата создания</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>{{ order.id }}</td>
+                            <td>{{ order.user.name }}</td>
+                            <td>
+                                {% for product in order.products.all %}
+                                    {{ product.name }}<br>
+                                {% endfor %}
+                            </td>
+                            <td>{{ order.get_status_display }}</td>
+                            <td>{{ order.created_at|date:"d M Y, H:i" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Нет заказов.</p>
+        {% endif %}
+    </div>
+{% endblock %}
