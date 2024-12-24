@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login
 from .forms import RegistrationForm
 from .forms import OrderForm
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 def index(request):
@@ -23,7 +25,9 @@ def user(request):
 # Пример использования моделей
 def user_list(request):
     users = User.objects.all()
-    return render(request, 'main/user.html', {'users': users})
+    form = OrderForm()  # Создаём объект формы
+    return render(request, 'main/user.html', {'users': users, 'form': form})  # Передаём форму в контекст
+
 
 def product_list(request):
     products = Product.objects.all()
@@ -48,12 +52,22 @@ def register(request):
 
 
 def create_order(request):
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden("Вы должны быть аутентифицированы для создания заказа.")
+
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('main/order_list')  # Замените на имя вашей страницы со списком заказов
+            order = form.save(commit=False)
+            order.user = request.user._wrapped  # Используем _wrapped для получения истинного объекта User
+            order.save()
+            form.save_m2m()
+
+            return redirect('main/order_list')
     else:
         form = OrderForm()
 
     return render(request, 'main/create_order.html', {'form': form})
+
+
+
