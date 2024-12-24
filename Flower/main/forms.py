@@ -23,12 +23,10 @@ class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = ['products', 'status']  # Не включаем 'user' в форму
-
         widgets = {
             'products': forms.CheckboxSelectMultiple(),
             'status': forms.Select(),
         }
-
         labels = {
             'products': 'Продукты',
             'status': 'Статус заказа',

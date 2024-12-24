@@ -52,22 +52,32 @@ def register(request):
 
 
 def create_order(request):
+    # Проверяем, аутентифицирован ли пользователь
     if not request.user.is_authenticated:
-        return HttpResponseForbidden("Вы должны быть аутентифицированы для создания заказа.")
+        return HttpResponseForbidden("You must be logged in to create an order.")
+
+    # Преобразуем SimpleLazyObject в User, если это необходимо
+    user = request.user._wrapped if hasattr(request.user, '_wrapped') else request.user
 
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
-            order.user = request.user._wrapped  # Используем _wrapped для получения истинного объекта User
-            order.save()
-            form.save_m2m()
+
+            # Присваиваем заказ текущему пользователю
+            if user:
+                order.user = user  # Присваиваем заказ текущему аутентифицированному пользователю
+
+            order.save()  # Сохраняем заказ
+
+            form.save_m2m()  # Сохраняем связи ManyToMany, если они есть
 
             return redirect('main/order_list')
     else:
         form = OrderForm()
 
     return render(request, 'main/create_order.html', {'form': form})
+
 
 
 
