@@ -1,21 +1,10 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
-# User model
-class User(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=255)
-    email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=20, null=True, blank=True)
-    address = models.TextField(null=True, blank=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = "Пользователь"
-        verbose_name_plural = "Пользователи"
-
+class Customer(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
 
 # Product model
 class Product(models.Model):
@@ -42,13 +31,13 @@ class Order(models.Model):
     ]
 
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders', blank=True, null=True)  # Сделать поле необязательным
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders', blank=True, null=True)
     products = models.ManyToManyField(Product, related_name='orders')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Order {self.id} by {self.user.name if self.user else 'Unknown'} - {self.status}"
+        return f"Order {self.id} by {self.user.username if self.user else 'Unknown'} - {self.status}"
 
     class Meta:
         verbose_name = "Заказ"

@@ -1,15 +1,11 @@
 from datetime import datetime
 from .models import User, Product, Order
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from django.contrib.auth import login
-from .forms import RegistrationForm
-from .forms import OrderForm
-from django.http import HttpResponseForbidden
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from .forms import CustomUserCreationForm
+from django.contrib.auth.models import User
+from django.http import HttpResponseForbidden
+from django.shortcuts import render, redirect
+from .forms import OrderForm
 
 # Create your views here.
 def index(request):
@@ -54,8 +50,6 @@ def register(request):
     return render(request, 'main/register.html', {'form': form})
 
 
-
-
 def create_order(request):
     # Проверяем, аутентифицирован ли пользователь
     if not request.user.is_authenticated:
@@ -69,9 +63,11 @@ def create_order(request):
         if form.is_valid():
             order = form.save(commit=False)
 
-            # Присваиваем заказ текущему пользователю
-            if user:
+            # Проверяем, является ли user экземпляром User
+            if isinstance(user, User):
                 order.user = user  # Присваиваем заказ текущему аутентифицированному пользователю
+            else:
+                return HttpResponseForbidden("Invalid user instance.")
 
             order.save()  # Сохраняем заказ
 
@@ -84,5 +80,17 @@ def create_order(request):
     return render(request, 'main/create_order.html', {'form': form})
 
 
+def create_order_for_customer(request):
+    if request.method == 'POST':
+        form = CustomerOrderForm(request.POST)
+        if form.is_valid():
+            customer = Customer.objects.get(pk=request.session['customer_id'])
+            order = form.save(commit=False)
+            order.customer = customer  # Отдельная сущность заказчика
+            order.save()
+            return redirect('order_list')
+    else:
+        form = CustomerOrderForm()
+    return render(request, 'create_order.html', {'form': form})
 
 

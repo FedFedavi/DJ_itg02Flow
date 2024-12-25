@@ -2,6 +2,7 @@ from .models import Order
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from .models import Customer
 
 
 class RegistrationForm(forms.ModelForm):
@@ -18,6 +19,11 @@ class RegistrationForm(forms.ModelForm):
         if password != password_confirm:
             raise forms.ValidationError("Пароли не совпадают.")
         return password_confirm
+
+class CustomerForm(forms.ModelForm):
+    class Meta:
+        model = Customer
+        fields = ['name', 'email']
 
 
 class OrderForm(forms.ModelForm):
