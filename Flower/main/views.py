@@ -7,6 +7,9 @@ from .forms import RegistrationForm
 from .forms import OrderForm
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
+from .forms import CustomUserCreationForm
 
 # Create your views here.
 def index(request):
@@ -39,16 +42,18 @@ def order_list(request):
 
 def register(request):
     if request.method == 'POST':
-        form = RegistrationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password'])
-            user.save()
-            login(request, user)  # Автоматический вход после регистрации
-            return redirect('index')  # Перенаправление на главную страницу
+            user = form.save()
+            messages.success(request, 'Регистрация прошла успешно. Теперь вы можете войти.')
+            return redirect('index')
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки в форме.')
     else:
-        form = RegistrationForm()
+        form = CustomUserCreationForm()
     return render(request, 'main/register.html', {'form': form})
+
+
 
 
 def create_order(request):
