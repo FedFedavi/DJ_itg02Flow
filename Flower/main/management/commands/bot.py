@@ -66,21 +66,46 @@ async def request_phone(message: types.Message):
 
 # Обработка номера телефона
 @router.message(lambda message: message.contact)
-async def save_telegram_id(message: types.Message):
+async def save_telegram_id_and_check_orders(message: types.Message):
     contact = message.contact
     if contact:
         phone_number = contact.phone_number
         telegram_id = message.from_user.id
 
-        # Сохранение в базу данных
+        # Сохранение пользователя в базу данных
         customer, created = await sync_to_async(Customer.objects.get_or_create)(phone=phone_number)
         customer.telegram_id = telegram_id
         await sync_to_async(customer.save)()
 
-        await message.answer("Ваш номер телефона успешно зарегистрирован!")
+        # Поиск заказов, связанных с этим номером телефона
+        orders = await sync_to_async(list)(
+            Order.objects.filter(customer__phone=phone_number).select_related("customer").prefetch_related("products")
+        )
+
+        if orders:
+            # Если есть заказы, отправляем информацию о каждом заказе
+            await message.answer("Ваш номер телефона успешно зарегистрирован! Вот ваши заказы:")
+            for order in orders:
+                products = await sync_to_async(list)(order.products.all())
+                product_details = "\n".join(
+                    [f"{product.name} - {product.price} ₽" for product in products]
+                )
+                order_info = (
+                    f"🛒 Заказ #{order.id}\n"
+                    f"📦 Продукты:\n{product_details}\n"
+                    f"💰 Общая стоимость: {sum([p.price for p in products])} ₽\n"
+                    f"📅 Дата заказа: {order.created_at.strftime('%d.%m.%Y')}\n"
+                    f"📍 Адрес доставки: {order.delivery_address}\n"
+                    f"📝 Статус: {order.get_status_display()}"
+                )
+                await message.answer(order_info)
+        else:
+            # Если заказов нет
+            await message.answer(
+                "Ваш номер телефона успешно зарегистрирован, но заказы, связанные с этим номером, не найдены."
+            )
     else:
         await message.answer("Ошибка при регистрации номера телефона.")
-
 
 # Команда для получения заказа
 @router.message(Command("order"))
