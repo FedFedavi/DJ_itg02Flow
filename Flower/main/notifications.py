@@ -7,7 +7,7 @@ async def notify_customer(order_id):
 
     customer = order.customer  # Теперь это будет заранее загруженный объект
     if customer and customer.telegram_id:
-        bot = Bot(token="YOUR_BOT_API_TOKEN")
+        bot = Bot(token="7792869223:AAHnV8lAFD0TiD2EhHYWFGc-ecLJfvoqiS4")
         message = (
             f"Ваш заказ #{order.id} успешно создан!\n"
             f"Статус: {order.get_status_display()}\n"

@@ -7,6 +7,7 @@ from asgiref.sync import sync_to_async
 @receiver(post_save, sender=Order)
 def send_order_notification(sender, instance, created, **kwargs):
     if created:
-        # Запуск асинхронной функции в отдельном контексте
-        sync_to_async(notify_customer)(instance.id)
+        # Прямой синхронный вызов функции
+        notify_customer(instance.id)
+
 

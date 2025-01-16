@@ -129,3 +129,9 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+LOGOUT_REDIRECT_URL = '/'
+
+SESSION_COOKIE_AGE = 1209600  # Время действия сессии (2 недели)
+SESSION_SAVE_EVERY_REQUEST = True  # Обновление cookie при каждом запросе
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Сессия не закрывается при закрытии браузера
