@@ -27,14 +27,23 @@ dp.include_router(router)
 
 
 # Функция для получения информации о заказе
+
 async def get_order_info(order_id):
     try:
-        order = await sync_to_async(Order.objects.get)(pk=order_id)
-        products = await sync_to_async(list)(order.products.all())
+        # Загружаем заказ с предварительной загрузкой связанных продуктов и их изображений
+        order = await sync_to_async(
+            Order.objects.prefetch_related('products').get
+        )(pk=order_id)
 
+        # Получаем список продуктов
+        products = order.products.all()
+
+        # Формируем список деталей продуктов
         product_details = "\n".join(
             [f"{product.name} - {product.price} ₽" for product in products]
         )
+
+        # Формируем текст информации о заказе
         order_info = (
             f"🛒 Заказ #{order.id}\n"
             f"📦 Продукты:\n{product_details}\n"
@@ -43,7 +52,13 @@ async def get_order_info(order_id):
             f"📍 Адрес доставки: {order.delivery_address}\n"
             f"📝 Статус: {order.get_status_display()}"
         )
-        return order_info, [product.image.path for product in products if product.image]
+
+        # Формируем список путей к изображениям продуктов
+        product_images = [
+            product.image.path for product in products if product.image
+        ]
+
+        return order_info, product_images
     except Order.DoesNotExist:
         return "Заказ не найден.", []
 
