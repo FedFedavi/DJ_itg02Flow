@@ -55,7 +55,7 @@ ROOT_URLCONF = 'Flower.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -131,6 +131,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
 
 SESSION_COOKIE_AGE = 1209600  # Время действия сессии (2 недели)
 SESSION_SAVE_EVERY_REQUEST = True  # Обновление cookie при каждом запросе

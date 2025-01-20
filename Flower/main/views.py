@@ -50,34 +50,40 @@ def register(request):
     return render(request, 'main/register.html', {'form': form})
 
 
+from django.shortcuts import redirect, render
+from django.http import HttpResponseForbidden
+from django.contrib.auth.models import User
+from .forms import OrderForm
+
 def create_order(request):
     # Проверяем, аутентифицирован ли пользователь
     if not request.user.is_authenticated:
-        return HttpResponseForbidden("You must be logged in to create an order.")
+        return HttpResponseForbidden("Вы должны быть авторизованы для создания заказа.")
 
-    # Преобразуем SimpleLazyObject в User, если это необходимо
-    user = request.user._wrapped if hasattr(request.user, '_wrapped') else request.user
+    # Получаем текущего пользователя
+    user = request.user
 
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
 
-            # Проверяем, является ли user экземпляром User
+            # Привязываем заказ к текущему пользователю
             if isinstance(user, User):
-                order.user = user  # Присваиваем заказ текущему аутентифицированному пользователю
+                order.user = user
             else:
-                return HttpResponseForbidden("Invalid user instance.")
+                return HttpResponseForbidden("Некорректный пользователь.")
 
             order.save()  # Сохраняем заказ
+            form.save_m2m()  # Сохраняем связи ManyToMany
 
-            form.save_m2m()  # Сохраняем связи ManyToMany, если они есть
-
-            return redirect('main/order_list')
+            # Перенаправляем на страницу списка заказов
+            return redirect('order_list')  # Здесь используется имя маршрута из urls.py
     else:
         form = OrderForm()
 
     return render(request, 'main/create_order.html', {'form': form})
+
 
 
 def create_order_for_customer(request):
