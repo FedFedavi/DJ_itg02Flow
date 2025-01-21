@@ -1,20 +1,22 @@
 from django.contrib import admin
-from django.contrib.auth.models import User
-from .models import Product, Order
+from .models import Customer, Product, Order
 
 
-# Настройка отображения для модели Product
+@admin.register(Customer)
+class CustomerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'phone', 'telegram_id')
+    search_fields = ('name', 'email')
+
+
+@admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'price')
     search_fields = ('name',)
     list_filter = ('price',)
 
-# Настройка отображения для модели Order
-class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'status', 'created_at')
-    search_fields = ('user__username', 'status')
-    list_filter = ('status', 'created_at')
 
-# Регистрация моделей с настройками
-admin.site.register(Product, ProductAdmin)
-admin.site.register(Order, OrderAdmin)
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'customer', 'status', 'created_at')
+    list_filter = ('status', 'created_at')
+    search_fields = ('user__username', 'customer__name')

@@ -1,11 +1,14 @@
 from datetime import datetime
-from .models import User, Product, Order
 from django.contrib import messages
 from .forms import CustomUserCreationForm
-from django.contrib.auth.models import User
+from .models import Product
 from django.http import HttpResponseForbidden
-from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
 from .forms import OrderForm
+from asgiref.sync import sync_to_async
+from django.shortcuts import redirect, render
+from .forms import CustomerOrderForm
+from .models import Customer, Order
 
 # Create your views here.
 def index(request):
@@ -33,7 +36,7 @@ def product_list(request):
     return render(request, 'main/product_list.html', {'products': products})
 
 def order_list(request):
-    orders = Order.objects.all()
+    orders = Order.objects.select_related('user', 'customer').all()
     return render(request, 'main/order_list.html', {'orders': orders})
 
 def register(request):
@@ -50,35 +53,28 @@ def register(request):
     return render(request, 'main/register.html', {'form': form})
 
 
-from django.shortcuts import redirect, render
-from django.http import HttpResponseForbidden
-from django.contrib.auth.models import User
-from .forms import OrderForm
-
-def create_order(request):
-    # Проверяем, аутентифицирован ли пользователь
+# Пример обновленного представления create_order с использованием sync_to_async для работы с базой данных:
+async def create_order(request):
     if not request.user.is_authenticated:
         return HttpResponseForbidden("Вы должны быть авторизованы для создания заказа.")
 
-    # Получаем текущего пользователя
     user = request.user
+
+    # Пытаемся найти связанного заказчика (обернуто в sync_to_async)
+    customer, created = await sync_to_async(Customer.objects.get_or_create)(
+        email=user.email,
+        defaults={'name': user.username}
+    )
 
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
-
-            # Привязываем заказ к текущему пользователю
-            if isinstance(user, User):
-                order.user = user
-            else:
-                return HttpResponseForbidden("Некорректный пользователь.")
-
-            order.save()  # Сохраняем заказ
-            form.save_m2m()  # Сохраняем связи ManyToMany
-
-            # Перенаправляем на страницу списка заказов
-            return redirect('order_list')  # Здесь используется имя маршрута из urls.py
+            order.user = user
+            order.customer = customer  # Привязываем заказчика
+            await sync_to_async(order.save)()  # Сохранение заказа через sync_to_async
+            await sync_to_async(form.save_m2m)()  # Сохранение many-to-many
+            return redirect('order_list')
     else:
         form = OrderForm()
 
@@ -86,17 +82,24 @@ def create_order(request):
 
 
 
-def create_order_for_customer(request):
+# Преобразуем функцию в асинхронную
+async def create_order_for_customer(request):
     if request.method == 'POST':
         form = CustomerOrderForm(request.POST)
         if form.is_valid():
-            customer = Customer.objects.get(pk=request.session['customer_id'])
+            # Получаем заказчика (обернуто в sync_to_async)
+            customer = await sync_to_async(Customer.objects.get)(pk=request.session['customer_id'])
+
             order = form.save(commit=False)
-            order.customer = customer  # Отдельная сущность заказчика
-            order.save()
+            order.customer = customer  # Привязываем заказчика
+            # Сохраняем заказ через sync_to_async
+            await sync_to_async(order.save)()
+
             return redirect('order_list')
     else:
         form = CustomerOrderForm()
+
     return render(request, 'create_order.html', {'form': form})
+
 
 

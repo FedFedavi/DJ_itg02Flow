@@ -14,6 +14,7 @@
                     <tr>
                         <th>№ Заказа</th>
                         <th>Пользователь</th>
+                        <th>Заказчик</th>
                         <th>Продукты</th>
                         <th>Статус</th>
                         <th>Дата создания</th>
@@ -23,7 +24,22 @@
                     {% for order in orders %}
                         <tr>
                             <td>{{ order.id }}</td>
-                            <td>{{ order.user.name }}</td>
+                            <td>
+                                {% if order.user %}
+                                    {{ order.user.username }}
+                                {% else %}
+                                    Не указан
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if order.customer %}
+                                    {{ order.customer.name }}<br>
+                                    Email: {{ order.customer.email }}<br>
+                                    Телефон: {{ order.customer.phone|default:"Не указан" }}
+                                {% else %}
+                                    Не указан
+                                {% endif %}
+                            </td>
                             <td>
                                 {% for product in order.products.all %}
                                     {{ product.name }}<br>
