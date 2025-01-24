@@ -55,3 +55,29 @@ class CustomUserCreationForm(UserCreationForm):
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
             field.widget.attrs['placeholder'] = f'Введите {field.label.lower()}'
+
+
+class CustomerOrderForm(forms.ModelForm):
+    """
+    Форма для создания заказа, связанного с конкретным заказчиком (Customer).
+    """
+    class Meta:
+        model = Order
+        fields = ['products', 'status']  # Укажите поля заказа, которые можно редактировать через форму
+        widgets = {
+            'products': forms.CheckboxSelectMultiple(),
+            'status': forms.Select(),
+        }
+        labels = {
+            'products': 'Продукты',
+            'status': 'Статус заказа',
+        }
+
+    def __init__(self, *args, **kwargs):
+        """
+        Настраивает отображение формы при ее создании.
+        """
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = f'Введите {field.label.lower()}'
