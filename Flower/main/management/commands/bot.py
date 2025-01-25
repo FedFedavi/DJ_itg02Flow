@@ -1,6 +1,7 @@
 import os
 import logging
 import django
+import re
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import CommandHandler, MessageHandler, Filters, Updater, CallbackContext
 from django.core.management.base import BaseCommand
@@ -17,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 # Токен бота
 API_TOKEN = "7792869223:AAHnV8lAFD0TiD2EhHYWFGc-ecLJfvoqiS4"
+
 
 # Функция для получения информации о заказе
 def get_order_info(order_id):
@@ -39,17 +41,27 @@ def get_order_info(order_id):
     except Order.DoesNotExist:
         return "Заказ не найден.", []
 
+
 # Команда /register для регистрации номера телефона
 def request_phone(update: Update, context: CallbackContext):
     button = KeyboardButton(text="Поделиться номером", request_contact=True)
     keyboard = ReplyKeyboardMarkup([[button]], resize_keyboard=True, one_time_keyboard=True)
     update.message.reply_text("Пожалуйста, отправьте ваш номер телефона:", reply_markup=keyboard)
 
-# Обработка контакта пользователя
+
+# Обработка номера телефона (как введенного вручную, так и через контакт)
 def save_telegram_id_and_check_orders(update: Update, context: CallbackContext):
+    phone_number = None
     contact = update.message.contact
+
+    # Проверка на контакт (отправленный через кнопку)
     if contact:
         phone_number = contact.phone_number
+    else:
+        # Если не контакт, пробуем извлечь номер телефона из текста
+        phone_number = extract_phone_number(update.message.text)
+
+    if phone_number:
         telegram_id = update.message.from_user.id
 
         try:
@@ -76,7 +88,18 @@ def save_telegram_id_and_check_orders(update: Update, context: CallbackContext):
             logger.exception("Ошибка при обработке регистрации")
             update.message.reply_text("Произошла ошибка при обработке вашего запроса.")
     else:
-        update.message.reply_text("Ошибка при регистрации номера телефона.")
+        update.message.reply_text("Не удалось распознать номер телефона. Пожалуйста, отправьте номер еще раз.")
+
+
+# Функция для извлечения номера телефона из текста
+def extract_phone_number(text):
+    # Используем регулярное выражение для поиска номеров телефонов
+    phone_regex = r"\+?\d{1,4}[\s\-]?\(?\d{1,3}\)?[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4}"
+    match = re.search(phone_regex, text)
+    if match:
+        return match.group(0)
+    return None
+
 
 # Команда /order для получения информации о заказе
 def send_order_info(update: Update, context: CallbackContext):
@@ -102,18 +125,22 @@ def send_order_info(update: Update, context: CallbackContext):
         logger.exception(e)
         update.message.reply_text("Произошла ошибка при получении информации о заказе.")
 
+
 # Основная функция для запуска бота
 def main():
     updater = Updater(token=API_TOKEN, use_context=True)
     dispatcher = updater.dispatcher
 
-    dispatcher.add_handler(CommandHandler("register", request_phone))
-    dispatcher.add_handler(MessageHandler(Filters.contact, save_telegram_id_and_check_orders))
-    dispatcher.add_handler(CommandHandler("order", send_order_info))
+    dispatcher.add_handler(CommandHandler("register", request_phone))  # Обработчик команды /register
+    dispatcher.add_handler(MessageHandler(Filters.contact, save_telegram_id_and_check_orders))  # Обработчик контактов
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command,
+                                          save_telegram_id_and_check_orders))  # Обработчик текста (для номера телефона)
+    dispatcher.add_handler(CommandHandler("order", send_order_info))  # Обработчик команды /order
 
     logger.info("Бот запущен!")
     updater.start_polling()
     updater.idle()
+
 
 # Кастомная команда Django для запуска бота
 class Command(BaseCommand):

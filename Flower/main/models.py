@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 class Customer(models.Model):
     name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)  # Уникальный email
+    email = models.EmailField(null=True, blank=True)
     phone = models.CharField(
         max_length=15,
         blank=True,
@@ -52,3 +52,12 @@ class Order(models.Model):
     class Meta:
         verbose_name = "Заказ"
         verbose_name_plural = "Заказы"
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone = models.CharField(max_length=15, unique=True, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.user.username} Profile'
+
+

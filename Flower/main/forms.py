@@ -1,8 +1,9 @@
 from .models import Order
-from django import forms
+from .models import Customer
+from .models import UserProfile
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Customer
+from django import forms
 
 
 class RegistrationForm(forms.ModelForm):
@@ -77,6 +78,32 @@ class CustomerOrderForm(forms.ModelForm):
         """
         Настраивает отображение формы при ее создании.
         """
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = f'Введите {field.label.lower()}'
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['phone']
+
+
+class CustomUserCreationForm(UserCreationForm):
+    email = forms.EmailField(required=True, label='Электронная почта', widget=forms.EmailInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Введите email'
+    }))
+    # phone = forms.CharField(max_length=15, label="Номер телефона", widget=forms.TextInput(attrs={
+    #     'class': 'form-control',
+    #     'placeholder': 'Введите номер телефона'
+    # }))
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password1', 'password2', 'phone']
+
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'

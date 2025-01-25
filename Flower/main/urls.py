@@ -13,4 +13,5 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('create_order/', views.create_order_for_customer, name='create_order_for_customer'),
+    path('update_profile/', views.update_profile, name='update_profile'),
 ]
