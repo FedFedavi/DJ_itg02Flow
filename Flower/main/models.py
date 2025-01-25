@@ -3,12 +3,17 @@ from django.contrib.auth.models import User
 
 class Customer(models.Model):
     name = models.CharField(max_length=100)
-    email = models.EmailField()
-    phone = models.CharField(max_length=15, blank=True, null=True)  # Новое поле для телефона
+    email = models.EmailField(unique=True)  # Уникальный email
+    phone = models.CharField(
+        max_length=15,
+        blank=True,
+        null=True,
+        unique=True  # Ограничение уникальности для телефона
+    )
     telegram_id = models.BigIntegerField(blank=True, null=True)  # ID пользователя Telegram
 
     def __str__(self):
-        return f"{self.name} ({self.phone})"
+        return f"{self.name} ({self.phone or 'Телефон не указан'})"
 
 # Product model
 class Product(models.Model):
