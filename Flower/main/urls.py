@@ -12,5 +12,5 @@ urlpatterns = [
     path('create_order/', views.create_order, name='create_order'),
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('create_order/', views.create_order_for_customer, name='create_order_for_customer'),
+    path('create_order2/', views.create_order_for_customer, name='create_order_for_customer'),
 ]

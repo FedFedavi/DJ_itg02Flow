@@ -4,7 +4,7 @@ from .forms import CustomUserCreationForm
 from .models import Product
 from django.http import HttpResponseForbidden
 from django.contrib.auth.models import User
-from .forms import OrderForm
+from .forms import OrderForm, CustomerOrderForm
 from django.shortcuts import redirect, render
 from .models import Customer, Order
 
@@ -89,4 +89,4 @@ def create_order_for_customer(request):
     else:
         form = CustomerOrderForm()
 
-    return render(request, 'create_order.html', {'form': form})
+    return render(request, 'main/create_order.html', {'form': form})
