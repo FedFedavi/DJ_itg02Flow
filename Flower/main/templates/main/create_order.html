@@ -1,20 +1,23 @@
 {% extends 'main/layoute.html' %}
 
-{% block title %}
-    Создать заказ
-{% endblock %}
 
 {% block content %}
-<div class="card mx-auto" style="max-width: 600px;">
-    <div class="card-header bg-secondary text-white text-center">
-        <h2>Создать заказ</h2>
-    </div>
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}  <!-- Отображение формы без поля пользователя -->
-            <button type="submit" class="btn btn-secondary w-100 mt-3">Сохранить заказ</button>
-        </form>
-    </div>
-</div>
+<h2>
+    {% if form.instance.id %}
+        Редактирование заказа #{{ form.instance.id }}
+    {% else %}
+        Создание нового заказа
+    {% endif %}
+</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">
+        {% if form.instance.id %}
+            Сохранить изменения
+        {% else %}
+            Создать заказ
+        {% endif %}
+    </button>
+</form>
 {% endblock %}

@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from .forms import OrderForm, CustomerOrderForm
 from django.shortcuts import redirect, render
 from .models import Customer, Order
+from django.shortcuts import get_object_or_404
 
 # Главная страница
 def index(request):
@@ -74,19 +75,31 @@ def create_order(request):
     return render(request, 'main/create_order.html', {'form': form})
 
 # Создание заказа для конкретного клиента
-def create_order_for_customer(request):
-    if request.method == 'POST':
-        form = CustomerOrderForm(request.POST)
-        if form.is_valid():
-            # Получаем заказчика по ID из сессии
-            customer = Customer.objects.get(pk=request.session['customer_id'])
 
+def create_order_for_customer(request, order_id=None):
+    """
+    Создание или редактирование заказа для конкретного клиента.
+    Если order_id передан, редактируем существующий заказ.
+    Если order_id не передан, создаем новый заказ.
+    """
+    # Получаем заказчика из сессии
+    customer = get_object_or_404(Customer, pk=request.session.get('customer_id'))
+
+    # Если order_id передан, редактируем существующий заказ
+    if order_id:
+        order = get_object_or_404(Order, pk=order_id, customer=customer)
+    else:
+        order = None
+
+    if request.method == 'POST':
+        form = CustomerOrderForm(request.POST, instance=order)
+        if form.is_valid():
             order = form.save(commit=False)
             order.customer = customer  # Привязываем заказчика
             order.save()  # Сохраняем заказ
-
+            form.save_m2m()  # Сохраняем many-to-many связи (если есть)
             return redirect('order_list')
     else:
-        form = CustomerOrderForm()
+        form = CustomerOrderForm(instance=order)
 
     return render(request, 'main/create_order.html', {'form': form})

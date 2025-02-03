@@ -1,0 +1,42 @@
+{% extends 'main/layoute.html' %}
+
+{% block title %}
+    Список товаров
+{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <h2>Список товаров</h2>
+
+        {% if products %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Изображение</th>
+                        <th>Название</th>
+                        <th>Цена (₽)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 100px; max-height: 100px;">
+                                {% else %}
+                                    <span>Нет изображения</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.price }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Товары отсутствуют.</p>
+        {% endif %}
+    </div>
+{% endblock %}
