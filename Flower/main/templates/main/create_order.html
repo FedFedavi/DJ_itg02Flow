@@ -11,13 +11,25 @@
 </h2>
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">
-        {% if form.instance.id %}
-            Сохранить изменения
-        {% else %}
-            Создать заказ
-        {% endif %}
-    </button>
+
+    <div class="mb-3">
+        <label for="products" class="form-label">Продукты:</label>
+        {% for checkbox in form.products %}
+            <div class="form-check">
+                {{ checkbox.tag }}
+                <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                    {{ checkbox.choice_label }}
+                </label>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3">
+        {{ form.status.label_tag }}
+        {{ form.status }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Создать заказ</button>
 </form>
+
 {% endblock %}

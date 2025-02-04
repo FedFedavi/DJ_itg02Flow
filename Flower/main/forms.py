@@ -63,10 +63,10 @@ class CustomerOrderForm(forms.ModelForm):
     """
     class Meta:
         model = Order
-        fields = ['products', 'status']  # Укажите поля заказа, которые можно редактировать через форму
+        fields = ['products', 'status']
         widgets = {
-            'products': forms.CheckboxSelectMultiple(),
-            'status': forms.Select(),
+            'products': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),  # Применяем класс для чекбоксов
+            'status': forms.Select(attrs={'class': 'form-control'}),
         }
         labels = {
             'products': 'Продукты',
@@ -74,10 +74,10 @@ class CustomerOrderForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        """
-        Настраивает отображение формы при ее создании.
-        """
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-            field.widget.attrs['placeholder'] = f'Введите {field.label.lower()}'
+            # Применяем 'form-control' только к полям, которые не являются множественным выбором (CheckboxSelectMultiple)
+            if not isinstance(field.widget, forms.CheckboxSelectMultiple):
+                field.widget.attrs['class'] = 'form-control'
+                field.widget.attrs['placeholder'] = f'Введите {field.label.lower()}'
+

@@ -1,0 +1,20 @@
+{% extends 'main/layoute.html' %}
+
+{% block title %}
+    Создание заказчика
+{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <h2>Информация о заказчике</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            <button type="submit" class="btn btn-primary">Сохранить заказчика</button>
+        </form>
+
+        <a href="{% url 'index' %}" class="btn btn-secondary mt-3">Вернуться на главную</a>
+    </div>
+{% endblock %}
