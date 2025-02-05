@@ -122,7 +122,7 @@ def create_order_for_customer(request, order_id=None):
             order.customer = customer
             order.save()
             form.save_m2m()
-            return redirect('order_list')
+            return redirect('edit_order_for_customer', order_id=order.id)
     else:
         form = CustomerOrderForm(instance=order)
 

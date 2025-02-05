@@ -18,6 +18,7 @@
                         <th>Продукты</th>
                         <th>Статус</th>
                         <th>Дата создания</th>
+                        <th>Действия</th> <!-- Новый столбец для действий -->
                     </tr>
                 </thead>
                 <tbody>
@@ -47,6 +48,9 @@
                             </td>
                             <td>{{ order.get_status_display }}</td>
                             <td>{{ order.created_at|date:"d M Y, H:i" }}</td>
+                            <td>
+                                <a href="{% url 'edit_order_for_customer' order_id=order.id %}" class="btn btn-primary btn-sm">Редактировать</a>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
