@@ -127,3 +127,17 @@ def create_order_for_customer(request, order_id=None):
         form = CustomerOrderForm(instance=order)
 
     return render(request, 'main/create_order.html', {'form': form})
+
+# Редактирование заказа
+def edit_order(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+
+    if request.method == 'POST':
+        form = OrderForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+            return redirect('order_list')
+    else:
+        form = OrderForm(instance=order)
+
+    return render(request, 'main/edit_order.html', {'form': form, 'order': order})
