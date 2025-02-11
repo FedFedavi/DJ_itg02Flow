@@ -41,9 +41,14 @@ def get_order_info(order_id):
 
 # Команда /register для регистрации номера телефона
 def request_phone(update: Update, context: CallbackContext):
-    button = KeyboardButton(text="Поделиться номером", request_contact=True)
+    button = KeyboardButton(text="📞 Поделиться номером", request_contact=True)
     keyboard = ReplyKeyboardMarkup([[button]], resize_keyboard=True, one_time_keyboard=True)
-    update.message.reply_text("Пожалуйста, отправьте ваш номер телефона:", reply_markup=keyboard)
+
+    update.message.reply_text(
+        "📲 Пожалуйста, нажмите кнопку ниже и поделитесь вашим номером телефона:",
+        reply_markup=keyboard
+    )
+
 
 # Обработка контакта пользователя
 def save_telegram_id_and_check_orders(update: Update, context: CallbackContext):

@@ -87,15 +87,13 @@ class CustomerForm(forms.ModelForm):
 
 
 # Создание заказа для конкретного клиента
-def create_order_for_customer(request, order_id=None):
+def create_order_for_customer(request):
     """
-    Создание или редактирование заказа для конкретного клиента.
-    Если order_id передан, редактируем существующий заказ.
-    Если order_id не передан, создаем новый заказ.
+    Создание заказа для конкретного клиента.
+    Если клиент отсутствует в сессии, сначала создаем его.
     """
     customer_id = request.session.get('customer_id')
 
-    # Проверка наличия заказчика в сессии
     if customer_id:
         customer = get_object_or_404(Customer, pk=customer_id)
     else:
@@ -104,29 +102,25 @@ def create_order_for_customer(request, order_id=None):
             if customer_form.is_valid():
                 customer = customer_form.save()
                 request.session['customer_id'] = customer.id
-                # Перенаправляем на создание заказа для нового заказчика
                 return redirect('create_order_for_customer')
             else:
                 return render(request, 'main/create_customer.html', {'form': customer_form})
         else:
-            customer_form = CustomerForm()
-            return render(request, 'main/create_customer.html', {'form': customer_form})
-
-    # Работа с заказом
-    order = get_object_or_404(Order, pk=order_id, customer=customer) if order_id else None
+            return render(request, 'main/create_customer.html', {'form': CustomerForm()})
 
     if request.method == 'POST':
-        form = CustomerOrderForm(request.POST, instance=order)
+        form = CustomerOrderForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
             order.customer = customer
             order.save()
             form.save_m2m()
-            return redirect('edit_order_for_customer', order_id=order.id)
+            return redirect('order_list')  # Перенаправляем в список заказов после создания
     else:
-        form = CustomerOrderForm(instance=order)
+        form = CustomerOrderForm()
 
     return render(request, 'main/create_order.html', {'form': form})
+
 
 # Редактирование заказа
 def edit_order(request, order_id):
