@@ -1,8 +1,7 @@
-from .models import Order
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Customer
+from .models import Customer, Order, CustomUser
 
 
 class RegistrationForm(forms.ModelForm):
@@ -20,6 +19,7 @@ class RegistrationForm(forms.ModelForm):
             raise forms.ValidationError("Пароли не совпадают.")
         return password_confirm
 
+
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
@@ -29,7 +29,7 @@ class CustomerForm(forms.ModelForm):
 class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['products', 'status']  # Не включаем 'user' в форму
+        fields = ['products', 'status']
         widgets = {
             'products': forms.CheckboxSelectMultiple(),
             'status': forms.Select(),
@@ -41,31 +41,28 @@ class OrderForm(forms.ModelForm):
 
 
 class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True, label='Электронная почта', widget=forms.EmailInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Введите email'
-    }))
+    email = forms.EmailField(required=True, label='Электронная почта')
+    phone_number = forms.CharField(required=False, label='Номер телефона')
 
     class Meta:
-        model = User
-        fields = ['username', 'email', 'password1', 'password2']
+        model = CustomUser
+        fields = ['username', 'email', 'phone_number', 'password1', 'password2']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-            field.widget.attrs['placeholder'] = f'Введите {field.label.lower()}'
+            field.widget.attrs.update({
+                'class': 'form-control',
+                'placeholder': f'Введите {field.label.lower()}'
+            })
 
 
 class CustomerOrderForm(forms.ModelForm):
-    """
-    Форма для создания заказа, связанного с конкретным заказчиком (Customer).
-    """
     class Meta:
         model = Order
         fields = ['products', 'status']
         widgets = {
-            'products': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),  # Применяем класс для чекбоксов
+            'products': forms.CheckboxSelectMultiple(),
             'status': forms.Select(attrs={'class': 'form-control'}),
         }
         labels = {
@@ -76,8 +73,5 @@ class CustomerOrderForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            # Применяем 'form-control' только к полям, которые не являются множественным выбором (CheckboxSelectMultiple)
             if not isinstance(field.widget, forms.CheckboxSelectMultiple):
-                field.widget.attrs['class'] = 'form-control'
-                field.widget.attrs['placeholder'] = f'Введите {field.label.lower()}'
-
+                field.widget.attrs.update({'class': 'form-control'})

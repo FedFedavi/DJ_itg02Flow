@@ -138,3 +138,4 @@ SESSION_SAVE_EVERY_REQUEST = True  # Обновление cookie при кажд
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Сессия не закрывается при закрытии браузера
 
 ASGI_APPLICATION = None
+AUTH_USER_MODEL = 'main.CustomUser'  # Укажите ваш app
