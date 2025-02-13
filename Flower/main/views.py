@@ -3,9 +3,10 @@ from django.contrib import messages
 from .forms import CustomUserCreationForm, OrderForm, CustomerOrderForm
 from .models import Product, Customer, Order
 from django.http import HttpResponseForbidden
-from django.contrib.auth.models import User
 from django.shortcuts import redirect, render, get_object_or_404
 from django import forms
+from .models import CustomUser as User
+from django.contrib.auth import login, authenticate
 
 
 # Главная страница
@@ -37,18 +38,21 @@ def order_list(request):
 
 
 # Регистрация пользователя
+
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            messages.success(request, 'Регистрация прошла успешно. Теперь вы можете войти.')
+            login(request, user)  # Автоматический вход
+            messages.success(request, 'Регистрация прошла успешно! Вы вошли в систему.')
             return redirect('index')
         else:
             messages.error(request, 'Пожалуйста, исправьте ошибки в форме.')
     else:
         form = CustomUserCreationForm()
     return render(request, 'main/register.html', {'form': form})
+
 
 
 # Создание заказа

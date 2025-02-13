@@ -1,12 +1,23 @@
-{% extends 'main\layoute.html' %}
+{% extends "main/layoute.html" %}
 
 {% block content %}
 <div class="container mt-5">
     <h2 class="text-center">Вход</h2>
-    <form method="post">
+    <<form method="post" class="mx-auto border p-4 rounded bg-white shadow-sm" style="max-width: 400px;">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Войти</button>
+
+        <div class="mb-3">
+            <label for="id_username" class="form-label">Имя пользователя:</label>
+            <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username"
+                   maxlength="150" required id="id_username" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label for="id_password" class="form-label">Пароль:</label>
+            <input type="password" name="password" autocomplete="current-password" required id="id_password" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Войти</button>
     </form>
 </div>
 {% endblock %}
