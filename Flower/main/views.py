@@ -1,12 +1,16 @@
 from datetime import datetime
 from django.contrib import messages
 from .forms import CustomUserCreationForm, OrderForm, CustomerOrderForm
-from .models import Product, Customer, Order
-from django.http import HttpResponseForbidden
+from .models import Product
 from django.shortcuts import redirect, render, get_object_or_404
 from django import forms
 from .models import CustomUser as User
 from django.contrib.auth import login, authenticate
+from django.http import HttpResponseForbidden
+from django.shortcuts import render, redirect
+from .models import Customer, Order
+from .forms import OrderForm
+from django.db.models import Q
 
 
 # Главная страница
@@ -32,9 +36,22 @@ def product_list(request):
 
 
 # Список заказов
+# Список заказов (показываем только свои)
 def order_list(request):
-    orders = Order.objects.select_related('user', 'customer').all()
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden("Вы должны быть авторизованы для просмотра заказов.")
+
+    user = request.user
+
+    # Администратор видит все заказы
+    if user.is_superuser:
+        orders = Order.objects.select_related('user', 'customer').all()
+    else:
+        # Показываем заказы, где пользователь — автор заказа (user) или заказчик (customer)
+        orders = Order.objects.filter(Q(user=user) | Q(customer__email=user.email)).distinct()
+
     return render(request, 'main/order_list.html', {'orders': orders})
+
 
 
 # Регистрация пользователя
@@ -65,19 +82,30 @@ def create_order(request):
     # Находим или создаем связанного заказчика
     customer, created = Customer.objects.get_or_create(
         email=user.email,
-        defaults={'name': user.username}
+        defaults={'name': user.username, 'phone': user.phone_number}
     )
 
     if request.method == 'POST':
+        print("Получен POST-запрос")  # Логируем получение запроса
+
         form = OrderForm(request.POST)
+
         if form.is_valid():
+            print("Форма валидна, создаём заказ")  # Проверяем, проходит ли валидацию
+
             order = form.save(commit=False)
             order.user = user
             order.customer = customer
             order.save()
             form.save_m2m()
+
+            print(f"Заказ создан с ID: {order.id}, редиректим на order_list")  # Проверяем, создаётся ли заказ
             return redirect('order_list')
+        else:
+            print("Форма НЕ валидна, ошибки:", form.errors)  # Вывод ошибок формы
+
     else:
+        print("Получен GET-запрос, отображаем форму")  # Логируем, если открыта страница создания заказа
         form = OrderForm()
 
     return render(request, 'main/create_order.html', {'form': form})
