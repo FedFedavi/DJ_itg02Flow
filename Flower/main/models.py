@@ -6,7 +6,7 @@ from django.db import models
 class Customer(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=15, blank=True, null=True, unique=True)
+    phone = models.CharField(max_length=15, blank=True, null=True)
     telegram_id = models.BigIntegerField(blank=True, null=True)
 
     def __str__(self):
@@ -60,9 +60,9 @@ class Order(models.Model):
     delivery_address = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def total_price(self):
+        return sum(product.price for product in self.products.all())
+
     def __str__(self):
         return f"Order {self.id} by {self.customer.name if self.customer else 'Unknown Customer'} - {self.status}"
 
-    class Meta:
-        verbose_name = "Заказ"
-        verbose_name_plural = "Заказы"
