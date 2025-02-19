@@ -1,12 +1,14 @@
-from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from django.urls import path
+from .views import product_list, product_create
 
 
 urlpatterns = [
     path('', views.index, name='index'),
     path('users/', views.user_list, name='user'),
-    path('products/', views.product_list, name='product_list'),
+    path('products/', product_list, name='product_list'),
+    path('products/add/', product_create, name='product_create'),
     path('orders/', views.order_list, name='order_list'),
     path('register/', views.register, name='register'),
     path('create_order/', views.create_order, name='create_order'),

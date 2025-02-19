@@ -1,7 +1,9 @@
-from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Customer, Order, CustomUser
+from django import forms
+from .models import Product
+
 
 
 class RegistrationForm(forms.ModelForm):
@@ -75,3 +77,9 @@ class CustomerOrderForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             if not isinstance(field.widget, forms.CheckboxSelectMultiple):
                 field.widget.attrs.update({'class': 'form-control'})
+
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'price', 'image']  # Укажи все необходимые поля

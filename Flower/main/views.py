@@ -1,16 +1,15 @@
 from datetime import datetime
 from django.contrib import messages
 from .forms import CustomUserCreationForm, OrderForm, CustomerOrderForm
-from .models import Product
 from django.shortcuts import redirect, render, get_object_or_404
 from django import forms
 from .models import CustomUser as User
 from django.contrib.auth import login, authenticate
 from django.http import HttpResponseForbidden
-from django.shortcuts import render, redirect
 from .models import Customer, Order
-from .forms import OrderForm
 from django.db.models import Q
+from .models import Product
+from .forms import ProductForm
 
 
 # Главная страница
@@ -167,3 +166,16 @@ def edit_order(request, order_id):
         form = OrderForm(instance=order)
 
     return render(request, 'main/edit_order.html', {'form': form, 'order': order})
+
+
+
+def product_create(request):
+    if request.method == "POST":
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('product_list')  # Перенаправляем на список товаров
+    else:
+        form = ProductForm()
+
+    return render(request, 'main/product_form.html', {'form': form})

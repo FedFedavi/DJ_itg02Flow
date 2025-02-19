@@ -66,3 +66,8 @@ class Order(models.Model):
     def __str__(self):
         return f"Order {self.id} by {self.customer.name if self.customer else 'Unknown Customer'} - {self.status}"
 
+    class Meta:
+        verbose_name = "Заказ"
+        verbose_name_plural = "Заказы"
+
+

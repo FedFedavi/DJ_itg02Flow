@@ -10,17 +10,18 @@
     <div class="row">
         {% for product in products %}
         <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm" style="transition: transform 0.2s, box-shadow 0.2s;">
+            <div class="card h-100 shadow-sm d-flex flex-column card-custom">
                 {% if product.image %}
-                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                <img src="{{ product.image.url }}" class="card-img-top fixed-image" alt="{{ product.name }}">
                 {% else %}
-                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center fixed-image">
                     <p class="text-muted">Изображение отсутствует</p>
                 </div>
                 {% endif %}
-                <div class="card-body">
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ product.name }}</h5>
                     <p class="card-text">Цена: {{ product.price }} ₽</p>
+                    <a href="#" class="btn btn-primary mt-auto">Подробнее</a>
                 </div>
             </div>
         </div>
@@ -29,9 +30,34 @@
 </div>
 
 <style>
+/* Плавное увеличение карточки */
 .card:hover {
-    transform: scale(1.05);
+    transform: scale(1.03); /* Немного уменьшили эффект */
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* Убираем рамку с карточки */
+.card-custom {
+    padding: 0; /* Без внутренних отступов */
+    border: none; /* Без границы */
+}
+
+/* Фиксированные размеры для изображений */
+.fixed-image {
+    height: 375px; /* Увеличенная высота */
+    object-fit: cover;
+    width: 100%;
+    border: 2px solid #fff; /* Тонкая белая рамка вокруг изображения */
+    border-radius: 5px;
+    box-sizing: border-box; /* Чтобы рамка не меняла размер */
+    transition: border-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+/* При наведении рамка чуть ярче */
+.card:hover .fixed-image {
+    border-color: #eee; /* Чуть заметнее */
+    transform: scale(1.02); /* Лёгкое увеличение */
 }
 </style>
 {% endblock %}

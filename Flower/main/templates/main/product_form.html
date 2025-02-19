@@ -1,0 +1,103 @@
+{% extends 'main/layoute.html' %}
+
+{% block title %}
+    Добавить товар
+{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Добавить новый товар</h2>
+            <a href="{% url 'product_create' %}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Добавить товар
+            </a>
+        </div>
+
+        <div class="card shadow-sm p-4">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="mb-3 row align-items-center">
+                        <div class="col-sm-3 text-end">
+                            <span class="decor-label">Название</span>
+                        </div>
+                        <div class="col-sm-7">
+                            {{ form.name }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row align-items-center">
+                        <div class="col-sm-3 text-end">
+                            <span class="decor-label">Цена</span>
+                        </div>
+                        <div class="col-sm-7">
+                            {{ form.price }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row align-items-center">
+                        <div class="col-sm-3 text-end">
+                            <span class="decor-label">Изображение</span>
+                        </div>
+                        <div class="col-sm-7">
+                            {{ form.image }}
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-sm-3 text-end">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save"></i> Сохранить
+                            </button>
+                        </div>
+                        <div class="col-sm-7">
+                            <a href="{% url 'product_list' %}" class="btn btn-secondary px-4">
+                                <i class="fas fa-arrow-left"></i> Назад
+                            </a>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    /* Оформление полей */
+    .form-control {
+        height: 32px;
+        font-size: 14px;
+    }
+
+    /* Декоративные подписи */
+    .decor-label {
+        display: inline-block;
+        width: 120px; /* Одинаковая ширина для всех */
+        padding: 4px 10px; /* Чуть меньше отступов */
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 4px; /* Чуть меньше закругления */
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.6);
+        box-shadow: none; /* Убираем тень, чтобы не выглядело как кнопка */
+        text-align: center;
+    }
+
+    /* Выровнять подписи и поля */
+    .col-sm-3 {
+        padding-right: 10px;
+    }
+
+    /* Выровнять кнопку "Сохранить" */
+    .row.mt-4 .col-sm-3 {
+        text-align: right;
+    }
+
+    /* Кнопки */
+    .btn {
+        font-size: 14px;
+    }
+    </style>
+
+{% endblock %}
