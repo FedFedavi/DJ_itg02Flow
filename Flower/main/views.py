@@ -78,43 +78,32 @@ def create_order(request):
 
     user = request.user
 
-    # Находим или создаем связанного заказчика
     customer, created = Customer.objects.get_or_create(
         email=user.email,
         defaults={'name': user.username, 'phone': user.phone_number}
     )
 
     if request.method == 'POST':
-        print("Получен POST-запрос")  # Логируем получение запроса
-
         form = OrderForm(request.POST)
 
         if form.is_valid():
-            print("Форма валидна, создаём заказ")  # Проверяем, проходит ли валидацию
-
             order = form.save(commit=False)
             order.user = user
             order.customer = customer
+            order.status = 'Pending'  # Принудительно ставим статус
             order.save()
             form.save_m2m()
 
-            print(f"Заказ создан с ID: {order.id}, редиректим на order_list")  # Проверяем, создаётся ли заказ
             return redirect('order_list')
-        else:
-            print("Форма НЕ валидна, ошибки:", form.errors)  # Вывод ошибок формы
 
     else:
-        print("Получен GET-запрос, отображаем форму")  # Логируем, если открыта страница создания заказа
         form = OrderForm()
 
-    return render(request, 'main/create_order.html', {'form': form})
+    # Передаем список продуктов с изображениями
+    products_with_images = Product.objects.all()  # Убедитесь, что у модели есть `image`
 
+    return render(request, 'main/create_order.html', {'form': form, 'products_with_images': products_with_images})
 
-# Форма для заказчика
-class CustomerForm(forms.ModelForm):
-    class Meta:
-        model = Customer
-        fields = ['name', 'email', 'phone']
 
 
 # Создание заказа для конкретного клиента
