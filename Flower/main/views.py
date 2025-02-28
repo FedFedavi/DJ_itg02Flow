@@ -1,15 +1,15 @@
 from datetime import datetime
 from django.contrib import messages
 from .forms import CustomUserCreationForm, OrderForm, CustomerOrderForm
-from django.shortcuts import redirect, render, get_object_or_404
 from django import forms
 from .models import CustomUser as User
 from django.contrib.auth import login, authenticate
-from django.http import HttpResponseForbidden
-from .models import Customer, Order
 from django.db.models import Q
-from .models import Product
 from .forms import ProductForm
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseForbidden
+from .models import Order, Product, Customer
+
 
 
 # Главная страница
@@ -78,31 +78,52 @@ def create_order(request):
 
     user = request.user
 
+    # Находим или создаем заказчика
     customer, created = Customer.objects.get_or_create(
         email=user.email,
         defaults={'name': user.username, 'phone': user.phone_number}
     )
 
+    order = None
+    if 'order_id' in request.GET:
+        order = get_object_or_404(Order, id=request.GET['order_id'])
+
     if request.method == 'POST':
-        form = OrderForm(request.POST)
+        print("POST Data:", request.POST)  # Отладка
+        form = OrderForm(request.POST, instance=order)
 
         if form.is_valid():
             order = form.save(commit=False)
             order.user = user
             order.customer = customer
-            order.status = 'Pending'  # Принудительно ставим статус
+
+            if not order.id:
+                order.status = 'PENDING'  # Исправляем на верхний регистр
+
             order.save()
-            form.save_m2m()
+
+            # Обновляем продукты
+            selected_products = request.POST.getlist('products')  # Получаем список ID
+            order.products.set(selected_products)  # Привязываем продукты к заказу
+            print("Selected Products:", selected_products)  # Отладка
 
             return redirect('order_list')
+        else:
+            print("Form Errors:", form.errors)  # Отладка ошибок
 
     else:
-        form = OrderForm()
+        form = OrderForm(instance=order)
 
-    # Передаем список продуктов с изображениями
-    products_with_images = Product.objects.all()  # Убедитесь, что у модели есть `image`
+    # Передаем выбранные продукты
+    products_with_images = Product.objects.all()
+    selected_products = order.products.values_list('id', flat=True) if order else []
 
-    return render(request, 'main/create_order.html', {'form': form, 'products_with_images': products_with_images})
+    return render(request, 'main/create_order.html', {
+        'form': form,
+        'products_with_images': products_with_images,
+        'selected_products': selected_products,
+    })
+
 
 
 

@@ -31,17 +31,20 @@ class CustomerForm(forms.ModelForm):
 class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['products']  # Убрали 'status'
+        fields = ['status', 'products']
         widgets = {
             'products': forms.CheckboxSelectMultiple(),
         }
         labels = {
             'products': 'Продукты',
+            'status': 'Статус заказа',
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.instance.status = 'Pending'  # Автоматически устанавливаем статус
+        if not self.instance.pk:  # Если создаем новый заказ
+            self.fields['status'].initial = 'PENDING'  # Исправляем регистр
+
 
 
 class CustomUserCreationForm(UserCreationForm):
