@@ -1,0 +1,9 @@
+<h1>Заказ #{{ order.id }}</h1>
+<p>Статус: {{ order.get_status_display }}</p>
+<p>Заказчик: {{ order.customer.name }}</p>
+<p>Товары:</p>
+<ul>
+    {% for product in order.products.all %}
+        <li>{{ product.name }} - {{ product.price }} руб.</li>
+    {% endfor %}
+</ul>

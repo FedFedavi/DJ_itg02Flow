@@ -17,5 +17,6 @@ urlpatterns = [
     path('create_order_for_customer/', views.create_order_for_customer, name='create_order_for_customer'),
     path('create_order_for_customer/<int:order_id>/', views.create_order_for_customer, name='edit_order_for_customer'),
     path('edit_order/<int:order_id>/', views.edit_order, name='edit_order'),
+    path('orders/<int:pk>/', views.order_detail, name='order_detail'),
 
 ]

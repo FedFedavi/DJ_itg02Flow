@@ -50,14 +50,29 @@
 
     <!-- Нижняя строка: Навигация -->
     <nav class="navigation mt-4">
-      <ul class="nav justify-content-center">
-        <li class="nav-item">
-          <a href="{% url 'index' %}" class="nav-link text-dark fs-5">Главная</a>
-        </li>
-        <li class="nav-item">
-          <a href="{% url 'create_order' %}" class="nav-link text-dark fs-5">Заказать</a>
-        </li>
-      </ul>
-    </nav>
+  <ul class="nav justify-content-center">
+    <li class="nav-item">
+      <a href="{% url 'index' %}" class="nav-link text-dark fs-5">Главная</a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'create_order' %}" class="nav-link text-dark fs-5">Заказать</a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'order_list' %}" class="nav-link text-dark fs-5">Мои заказы</a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'product_list' %}" class="nav-link text-dark fs-5">Каталог</a>
+    </li>
+    {% if user.is_authenticated and user.is_superuser %}
+    <li class="nav-item">
+      <a href="{% url 'user' %}" class="nav-link text-dark fs-5">Пользователи</a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'product_create' %}" class="nav-link text-dark fs-5">Добавить товар</a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+
   </div>
 </header>

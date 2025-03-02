@@ -189,3 +189,8 @@ def product_create(request):
         form = ProductForm()
 
     return render(request, 'main/product_form.html', {'form': form})
+
+
+def order_detail(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+    return render(request, 'main/order_detail.html', {'order': order})
